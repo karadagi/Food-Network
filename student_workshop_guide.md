@@ -1,146 +1,59 @@
-# Workshop: Building a 3D Urban Anayltics Dashboard
+# Workshop: Vibe Coding a 3D City with Antigravity
 **Target Audience**: Architecture & Planning Students
-**Goal**: Create a web-based, interactive 3D map of a city using open-source tools.
+**Goal**: Create a stunning, interactive 3D dashboard of Atlanta (or your site) by collaborating with AI. No manual coding required—just vibes.
 
 ---
 
-## 🛠️ Phase 1: The Digital Toolbox (Prerequisites)
+## 🌊 Phase 1: The Setup (Vibe Check)
 
-Before we start building, ensure you have the following installed:
-1.  **Node.js (LTS Version)**: The engine that runs our development tools. [Download here](https://nodejs.org/).
-2.  **VS Code**: The code editor we will use. [Download here](https://code.visualstudio.com/).
-3.  **Git**: For version control and publishing. [Download here](https://git-scm.com/).
-4.  **Mapbox Account**: Sign up at [mapbox.com](https://www.mapbox.com/) and create a generic public **Access Token**.
+We aren't writing code from scratch. We are directing an AI developer.
 
----
-
-## 🚀 Phase 2: Laying the Foundation (Project Setup)
-
-We will use **Vite** (pronounced "veet") to quickly set up a modern web project with **React**.
-
-1.  **Open Terminal** in VS Code (Ctrl+` or Terminal > New Terminal).
-2.  Run the creation command:
-    ```bash
-    npm create vite@latest city-dashboard -- --template react
-    ```
-3.  Enter the project folder and install the code libraries:
-    ```bash
-    cd city-dashboard
-    npm install
-    npm install react-map-gl mapbox-gl
-    ```
-4.  Start your local server:
-    ```bash
-    npm run dev
-    ```
-    *Open the link (e.g., `http://localhost:5173`) in your browser.*
+1.  **Antigravity Acess**: Ensure you have your Antigravity AI assistant ready.
+2.  **Mapbox Token**: Sign up at [mapbox.com](https://www.mapbox.com/) and grab your public **Access Token**. You'll need to give this to Antigravity.
+3.  **Vision**: Have a clear aesthetic in mind. Is it Cyberpunk? Solarpunk? Minimalist Architectural?
 
 ---
 
-## 🗺️ Phase 3: The Context Site (Basic Map)
+## 🤖 Phase 2: The Prompt (Genesis)
 
-We need a canvas. We will replace the default code with a full-screen map.
+Start a new session with Antigravity and copy-paste this prompt to kickstart the project:
 
-**1. Create the Map Component**
-Create a new file `src/Map.jsx`:
-```jsx
-import React from 'react';
-import Map, { NavigationControl } from 'react-map-gl/mapbox';
+> "I need a dashboard for an architecture project. It should be a web app using Vite and React. The centerpiece is a full-screen, 3D interactive map of Atlanta using Mapbox GL. I want it to look [INSERT YOUR VIBE: e.g., 'dark, sleek, and premium' or 'clean, white-model aesthetic']. Please set up the project structure for me."
 
-const TOKEN = 'YOUR_MAPBOX_TOKEN_HERE'; // 🔑 Replace this!
-
-export default function MapComponent() {
-  return (
-    <Map
-      initialViewState={{
-        longitude: -84.3880, // Atlanta
-        latitude: 33.7490,
-        zoom: 14,
-        pitch: 60, // Tilt for 3D effect
-        bearing: -20
-      }}
-      style={{width: '100vw', height: '100vh'}}
-      mapStyle="mapbox://styles/mapbox/dark-v11" // Try 'light-v11' or 'satellite-streets-v12'
-      mapboxAccessToken={TOKEN}
-      mapLib={window.mapboxgl} // Important for compatibility
-    >
-      <NavigationControl />
-    </Map>
-  );
-}
-```
-
-**2. Update the Main App**
-In `src/App.jsx`:
-```jsx
-import MapComponent from './Map';
-
-function App() {
-  return <MapComponent />;
-}
-export default App;
-```
-
-**3. Add the Library CDN**
-In `index.html`, add these lines inside the `<head>` tag:
-```html
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
-```
+**What happens next?**
+*   Antigravity will create the files.
+*   It might ask for your Mapbox Token. Paste it when asked.
+*   It will install the libraries (`react-map-gl`, etc.).
 
 ---
 
-## 🏢 Phase 4: Going Vertical (3D Buildings)
+## 🎨 Phase 3: The Aesthetic (Styling)
 
-Architecture is about volume. Let's turn the flat map into a 3D model using Mapbox's global building data.
+Now, we iterate. Don't touch the code—refine the prompt.
 
-Update `src/Map.jsx` to include the **Layer** component inside the `<Map>` tag:
+**To get 3D Buildings:**
+> "The map looks flat. Add a 3D building layer. Make the buildings extrude based on their height. Color them [e.g., 'light grey'] and give them a slight transparency so we can see the street grid."
 
-```jsx
-import Map, { Layer, NavigationControl } from 'react-map-gl/mapbox';
+**To change the atmosphere:**
+> "The lighting is too harsh. Can we change the map style to a dark mode? And add a floating panel on the left for project statistics with a glassmorphism effect."
 
-// ... inside the Map component, before closing </Map>
-<Layer
-  id="3d-buildings"
-  type="fill-extrusion"
-  source="composite"
-  source-layer="building"
-  filter={['==', 'extrude', 'true']}
-  minzoom={15}
-  paint={{
-    'fill-extrusion-color': '#aaa', // Building color
-    'fill-extrusion-height': ['get', 'height'], // Data-driven height
-    'fill-extrusion-base': ['get', 'min_height'],
-    'fill-extrusion-opacity': 0.6
-  }}
-/>
-```
-
-### 🎨 Design Challenge
-Try changing the `fill-extrusion-color` to match your studio's color palette, or use an interpolator to color buildings by height!
+**To add architectural context:**
+> "I want to visualize a specific site at [Coordinates]. Can you fly the camera there and rotate it 45 degrees?"
 
 ---
 
-## 🌍 Phase 5: Exhibition (Publishing)
+## 🚀 Phase 4: Exhibition (Ship It)
 
-Publish your dashboard to the web using **GitHub Pages**.
+When the vibes are immaculate, ask Antigravity to put it online.
 
-1.  **Initialize Git**:
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial dashboard"
-    ```
-2.  **Create a Repository** on GitHub (name it `city-dashboard`).
-3.  **Push your code** (follow the instructions on GitHub).
-4.  **Configure Deployment**:
-    - Go to Repository Settings > Pages.
-    - Source: **GitHub Actions**.
-    - Create a `.github/workflows/deploy.yml` file in your project (ask your instructor for the template).
+> "I want to publish this to GitHub Pages. Please initialize the git repo, set up the deployment action, and tell me what command to run to push it."
+
+Antigravity will handle the specialized configuration files (`vite.config.js`, `.github/workflows`) so you don't have to.
 
 ---
 
-## 📚 Resources
-- **Mapbox Studio**: Design custom base maps (colors, fonts).
-- **React-Map-GL Docs**: Advanced markers and popups.
-- **Tailwind CSS**: Rapid styling for overlay panels.
+## 💡 Pro-Tips for Vibe Coding
+
+*   **Be Specific about Feelings**: "Make it feel expensive" or "Make it look like a sci-fi HUD" are valid prompts. Antigravity translates "vibes" into CSS.
+*   **Iterate Fast**: If something looks wrong, just say "That broke the map, undo it" or "The text is too small, make it readable."
+*   **Ask for Explanations**: "How exactly is that 3D layer working?" helps you learn the logic without getting bogged down in syntax.
