@@ -155,15 +155,12 @@ export default function DashboardOverlay() {
                 </div>
 
                 <div className="flex space-x-4">
-                    <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-lg border border-zinc-800 flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <span className="text-white text-sm font-medium">System Online</span>
-                    </div>
+                    {/* Status removed */}
                 </div>
             </motion.div>
 
             {/* Left Sidebar - Analytics (Desktop Only) */}
-            <div className="hidden md:block absolute top-32 left-6 pointer-events-auto">
+            <div className="hidden md:block absolute top-48 left-6 pointer-events-auto">
                 <AnalyticsCard
                     title="Total Food Rescued"
                     value="617.0 lbs"

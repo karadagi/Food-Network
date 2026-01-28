@@ -1,40 +1,35 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Source, Layer, Marker, Popup } from 'react-map-gl/mapbox';
+import { Truck, Navigation2 } from 'lucide-react';
 
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
-// Mock Data Generators
-const generateRoutes = (count) => {
-    const routes = {
-        type: 'FeatureCollection',
-        features: []
-    };
+// Helper to calculate bearing between two points
+const calculateBearing = (start, end) => {
+    const startLat = start[1] * (Math.PI / 180);
+    const startLng = start[0] * (Math.PI / 180);
+    const endLat = end[1] * (Math.PI / 180);
+    const endLng = end[0] * (Math.PI / 180);
 
-    // Atlanta center
-    const center = [-84.3880, 33.7490];
+    const y = Math.sin(endLng - startLng) * Math.cos(endLat);
+    const x = Math.cos(startLat) * Math.sin(endLat) -
+        Math.sin(startLat) * Math.cos(endLat) * Math.cos(endLng - startLng);
+    const bearing = Math.atan2(y, x);
+    return (bearing * 180) / Math.PI;
+};
 
-    for (let i = 0; i < count; i++) {
-        // Random start/end points around Atlanta
-        const start = [
-            center[0] + (Math.random() - 0.5) * 0.1,
-            center[1] + (Math.random() - 0.5) * 0.1
-        ];
-        const end = [
-            center[0] + (Math.random() - 0.5) * 0.1,
-            center[1] + (Math.random() - 0.5) * 0.1
-        ];
+// Helper to get distance between two points (Haversine mostly, but for short distances simple euclidean on lat/long is okayish, but let's use a simple approximation for interpolation logic or just use the segment lengths provided by Mapbox API if we parsed them, but raw coords are easier to just loop through).
+// Actually, for smooth animation along a LineString, we need to know the total length to normalize time, or just traverse segment by segment.
+// Strategy: We will treat the route as a series of segments. We'll distribute the total duration across the total distance.
 
-        routes.features.push({
-            type: 'Feature',
-            geometry: {
-                type: 'LineString',
-                coordinates: [start, end]
-            },
-            properties: {
-                traffic: Math.random()
-            }
-        });
+const getPathLength = (coordinates) => {
+    let length = 0;
+    for (let i = 0; i < coordinates.length - 1; i++) {
+        const [x1, y1] = coordinates[i];
+        const [x2, y2] = coordinates[i + 1];
+        length += Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
-    return routes;
+    return length;
 };
 
 const restaurants = [
@@ -55,50 +50,78 @@ const pickupLocations = [
     { id: 9, lat: 33.7850, lng: -84.3900, name: "Student Commons Popup", type: "pickup" },
 ];
 
-const generateConnections = () => {
-    const features = [];
-    const activeCars = [];
-
-    // Create connections between some restaurants and shelters
-    restaurants.forEach((r, i) => {
-        // Connect each restaurant to a random shelter
-        const target = shelters[i % shelters.length];
-
-        const start = [r.lng, r.lat];
-        const end = [target.lng, target.lat];
-
-        // Route Line
-        features.push({
-            type: 'Feature',
-            geometry: { type: 'LineString', coordinates: [start, end] },
-            properties: { traffic: Math.random() }
-        });
-
-        // Car Data (Start, End, Duration, Offset)
-        activeCars.push({
-            id: `car-${i}`,
-            start,
-            end,
-            duration: 5000 + Math.random() * 5000, // 5-10 seconds
-            startTime: Date.now() + Math.random() * 5000
-        });
-    });
-
-    return {
-        geojson: { type: 'FeatureCollection', features },
-        cars: activeCars
-    };
-};
-
 export default function DataLayers() {
-    // Memoize the route network data
-    const { geojson, cars } = useMemo(() => generateConnections(), []);
-
-    // Animation Frame State
-    const [time, setTime] = React.useState(Date.now());
+    const [routes, setRoutes] = useState({ type: 'FeatureCollection', features: [] });
+    const [cars, setCars] = useState([]);
+    const [time, setTime] = useState(Date.now());
     const [selectedMarker, setSelectedMarker] = useState(null);
 
-    React.useEffect(() => {
+    // Initialize Cars and Fetch Routes
+    useEffect(() => {
+        const initCars = async () => {
+            const newCars = [];
+            const newRouteFeatures = [];
+
+            // Create 5 random car missions
+            for (let i = 0; i < 5; i++) {
+                const source = restaurants[i % restaurants.length];
+                const target = shelters[(i + 1) % shelters.length];
+
+                // Fetch real route from Mapbox
+                try {
+                    const query = await fetch(
+                        `https://api.mapbox.com/directions/v5/mapbox/driving/${source.lng},${source.lat};${target.lng},${target.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+                    );
+                    const json = await query.json();
+
+                    if (json.routes && json.routes[0]) {
+                        const route = json.routes[0];
+                        const coords = route.geometry.coordinates;
+
+                        // Add to visual route lines
+                        newRouteFeatures.push({
+                            type: 'Feature',
+                            geometry: route.geometry,
+                            properties: { traffic: Math.random() }
+                        });
+
+                        const length = getPathLength(coords);
+
+                        // Calculate realistic duration based on length
+                        // length is in degrees. 1 deg ~= 111km.
+                        // 0.01 deg ~= 1.1km. 
+                        // Real city speed ~30km/h. 
+                        // Let's make it simulate "fast time" but not instant.
+                        // Trial: 500,000 ms per degree of length
+                        // If path is 0.05 deg (approx 5km), duration = 25,000ms (25s) -> still fast?
+                        // User said "too fast". Let's try 2,000,000 ms per degree.
+                        // 0.05 * 2,000,000 = 100,000ms = 100s.
+                        const speedFactor = 2000000;
+
+                        newCars.push({
+                            id: `car-${i}`,
+                            path: coords,
+                            duration: length * speedFactor,
+                            startTime: Date.now() + Math.random() * 5000,
+                            pathLength: length
+                        });
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch route", error);
+                }
+            }
+
+            setRoutes({ type: 'FeatureCollection', features: newRouteFeatures });
+            setCars(newCars);
+        };
+
+        if (MAPBOX_TOKEN) {
+            initCars();
+        }
+    }, []);
+
+    // Animation Loop
+    useEffect(() => {
         let animationFrame;
         const animate = () => {
             setTime(Date.now());
@@ -111,34 +134,67 @@ export default function DataLayers() {
     return (
         <>
             {/* Route Lines */}
-            <Source id="routes" type="geojson" data={geojson}>
+            <Source id="routes" type="geojson" data={routes}>
                 <Layer
                     id="route-line"
                     type="line"
                     layout={{ 'line-join': 'round', 'line-cap': 'round' }}
                     paint={{
-                        'line-color': '#ffffff', // Standard Red
-                        'line-width': 10,
-                        'line-opacity': 0.5
+                        'line-color': '#3b82f6', // Blue route lines
+                        'line-width': 4,
+                        'line-opacity': 0.4
                     }}
                 />
             </Source>
 
             {/* Animated Delivery Cars */}
             {cars.map(car => {
-                // Calculate current position
-                const elapsed = (time - car.startTime) % car.duration;
-                const progress = elapsed / car.duration;
+                if (!car.path || car.path.length < 2) return null;
 
-                // Simple Linear Interpolation (Lerp)
-                const lng = car.start[0] + (car.end[0] - car.start[0]) * progress;
-                const lat = car.start[1] + (car.end[1] - car.start[1]) * progress;
+                const elapsed = (time - car.startTime) % car.duration;
+                const progress = elapsed / car.duration; // 0 to 1
+
+                // Calculate position along the path
+                // We map the linear progress (0-1) to the path's coordinate segments
+                // A simple approximation: assume uniform speed across segments (not strictly true but visually okay)
+                // Refined approach: Walk distance
+
+                const targetDist = progress * car.pathLength;
+                let currentDist = 0;
+                let position = car.path[0];
+                let bearing = 0;
+
+                for (let i = 0; i < car.path.length - 1; i++) {
+                    const start = car.path[i];
+                    const end = car.path[i + 1];
+                    const segDist = Math.sqrt(Math.pow(end[0] - start[0], 2) + Math.pow(end[1] - start[1], 2));
+
+                    if (currentDist + segDist > targetDist) {
+                        // We are in this segment
+                        const segProgress = (targetDist - currentDist) / segDist;
+                        position = [
+                            start[0] + (end[0] - start[0]) * segProgress,
+                            start[1] + (end[1] - start[1]) * segProgress
+                        ];
+                        bearing = calculateBearing(start, end);
+                        break;
+                    }
+                    currentDist += segDist;
+                }
 
                 return (
-                    <Marker key={car.id} longitude={lng} latitude={lat} anchor="center">
-                        <div className="bg-blue-500 p-1.5 rounded-full shadow-[0_0_10px_#3b82f6] border border-white z-20">
-                            {/* Tiny Truck Icon or just a dot */}
-                            <div className="w-2 h-2 bg-white rounded-full" />
+                    <Marker key={car.id} longitude={position[0]} latitude={position[1]} anchor="center">
+                        <div
+                            style={{
+                                transform: `rotate(${bearing}deg)`,
+                                transition: 'transform 0.1s linear'
+                            }}
+                            className="relative z-30"
+                        >
+                            <div className="bg-blue-600 p-2 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)] border-2 border-white flex items-center justify-center">
+                                {/* Navigation Arrow - Points Up by default which matches 0 bearing (North) */}
+                                <Navigation2 className="w-5 h-5 text-white fill-white" />
+                            </div>
                         </div>
                     </Marker>
                 );
@@ -159,14 +215,14 @@ export default function DataLayers() {
                     <div className="relative flex h-6 w-6 items-center justify-center group cursor-pointer z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white"></span>
-                        <div className="absolute bottom-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-green-500 font-bold">
+                        <div className="absolute bottom-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-green-500 font-bold hidden group-hover:block">
                             {r.name}
                         </div>
                     </div>
                 </Marker>
             ))}
 
-            {/* pickup: Self-Service Locations (Cyan) */}
+            {/* Pickup Locations (Cyan) */}
             {pickupLocations.map(p => (
                 <Marker
                     key={p.id}
@@ -184,7 +240,7 @@ export default function DataLayers() {
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-1 h-1 bg-white rounded-full"></div>
                         </div>
-                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-cyan-500 font-bold">
+                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-cyan-500 font-bold hidden group-hover:block">
                             {p.name}
                         </div>
                     </div>
@@ -206,7 +262,7 @@ export default function DataLayers() {
                     <div className="relative flex h-8 w-8 items-center justify-center group cursor-pointer z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
-                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-red-500 font-bold">
+                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-red-500 font-bold hidden group-hover:block">
                             {s.name}
                         </div>
                     </div>

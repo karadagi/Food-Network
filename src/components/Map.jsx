@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Layers, ChevronDown } from 'lucide-react';
 import Map, { Source, Layer, NavigationControl, FullscreenControl } from 'react-map-gl/mapbox';
 
 // Atlanta coordinates
@@ -12,9 +13,18 @@ const ATLANTA_VIEW = {
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
+const MAP_STYLES = [
+    { name: 'Night', style: 'mapbox://styles/mapbox/navigation-night-v1' },
+    { name: 'Dark', style: 'mapbox://styles/mapbox/dark-v11' },
+    { name: 'Satellite', style: 'mapbox://styles/mapbox/satellite-streets-v12' },
+    { name: 'Light', style: 'mapbox://styles/mapbox/light-v11' }
+];
+
 export default function MapComponent({ children }) {
     const mapRef = useRef(null);
     const [viewState, setViewState] = useState(ATLANTA_VIEW);
+    const [mapStyle, setMapStyle] = useState(MAP_STYLES[0].style);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
 
     useEffect(() => {
@@ -41,19 +51,55 @@ export default function MapComponent({ children }) {
             {...viewState}
             onMove={evt => setViewState(evt.viewState)}
             style={{ width: '100%', height: '100%' }}
-            mapStyle="mapbox://styles/mapbox/dark-v11"
+            mapStyle={mapStyle}
             mapboxAccessToken={MAPBOX_TOKEN}
             fog={{
                 "range": [0.5, 10],
-                "color": "#1F1A0B", // Dark Gold/Earth fog
+                "color": "#242b3b", // Deep Slate/Blue matching buildings
                 "horizon-blend": 0.2,
-                "high-color": "#26220F",
-                "space-color": "#000000",
-                "star-intensity": 0
+                "high-color": "#1e293b", // Dark Blue-Grey
+                "space-color": "#0f172a", // Darker Slate
+                "star-intensity": 0.5
             }}
         >
             <NavigationControl position="top-right" showCompass={false} />
             <FullscreenControl position="top-right" />
+
+            {/* Style Switcher */}
+            <div className="absolute top-4 right-12 z-10 flex flex-col items-end">
+                <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="bg-black/80 backdrop-blur-md p-2 rounded-lg border border-zinc-700 text-white flex items-center space-x-2 hover:bg-black/90 transition-colors shadow-xl"
+                >
+                    <Layers className="w-5 h-5 text-zinc-300" />
+                    <span className="text-sm font-medium pr-1">
+                        {MAP_STYLES.find(s => s.style === mapStyle)?.name}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isDropdownOpen && (
+                    <div className="mt-2 bg-black/90 backdrop-blur-xl border border-zinc-800 rounded-lg shadow-2xl overflow-hidden min-w-[140px]">
+                        {MAP_STYLES.map((style) => (
+                            <button
+                                key={style.name}
+                                onClick={() => {
+                                    setMapStyle(style.style);
+                                    setIsDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between
+                                    ${mapStyle === style.style
+                                        ? 'bg-blue-600/20 text-blue-400 font-bold'
+                                        : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+                                    }`}
+                            >
+                                {style.name}
+                                {mapStyle === style.style && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Logistics Network - Gold/Amber flow */}
             <Layer
@@ -87,9 +133,8 @@ export default function MapComponent({ children }) {
                 id="3d-buildings"
                 source="composite"
                 source-layer="building"
-                filter={['==', 'extrude', 'true']}
                 type="fill-extrusion"
-                minzoom={15}
+                minzoom={14}
                 paint={{
                     'fill-extrusion-color': '#1a1a1a', // Darker matte background
                     'fill-extrusion-height': ['get', 'height'],
