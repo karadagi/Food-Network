@@ -109,9 +109,9 @@ export default function DataLayers() {
                     type="line"
                     layout={{ 'line-join': 'round', 'line-cap': 'round' }}
                     paint={{
-                        'line-color': '#ff0000', // Standard Red
-                        'line-width': 5,
-                        'line-opacity': 0.9
+                        'line-color': '#ffffff', // Standard Red
+                        'line-width': 10,
+                        'line-opacity': 0.5
                     }}
                 />
             </Source>
