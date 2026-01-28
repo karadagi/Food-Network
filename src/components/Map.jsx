@@ -63,7 +63,7 @@ export default function MapComponent({ children }) {
                 type="line"
                 filter={['==', 'class', 'street']}
                 paint={{
-                    'line-color': '#ffaa00', // Amber
+                    'line-color': '#ffffffff', // Amber
                     'line-width': 1,
                     'line-blur': 1,
                     'line-opacity': 0.8
