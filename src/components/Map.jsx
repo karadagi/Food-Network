@@ -63,10 +63,10 @@ export default function MapComponent({ children }) {
                 type="line"
                 filter={['==', 'class', 'street']}
                 paint={{
-                    'line-color': '#ffaa00', // Amber/Gold
+                    'line-color': '#ffaa00', // Amber
                     'line-width': 1,
                     'line-blur': 1,
-                    'line-opacity': 0.5
+                    'line-opacity': 0.4
                 }}
             />
             <Layer
@@ -78,8 +78,8 @@ export default function MapComponent({ children }) {
                 paint={{
                     'line-color': '#ffcc00', // Bright Gold
                     'line-width': 3,
-                    'line-blur': 4, // Higher blur for "glow"
-                    'line-opacity': 1
+                    'line-blur': 3,
+                    'line-opacity': 0.8
                 }}
             />
 

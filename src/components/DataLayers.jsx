@@ -59,9 +59,9 @@ export default function DataLayers() {
                     type="line" // ... keeping existing line styles
                     layout={{ 'line-join': 'round', 'line-cap': 'round' }}
                     paint={{
-                        'line-color': '#eab308', // Gold connectors
-                        'line-width': 2,
-                        'line-opacity': 0.4
+                        'line-color': '#eaaa08ff', // Gold connectors (restored from red)
+                        'line-width': 4,
+                        'line-opacity': 0.8
                     }}
                 />
             </Source>
