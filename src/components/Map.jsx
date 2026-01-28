@@ -66,7 +66,7 @@ export default function MapComponent({ children }) {
                     'line-color': '#ffaa00', // Amber
                     'line-width': 1,
                     'line-blur': 1,
-                    'line-opacity': 0.4
+                    'line-opacity': 0.8
                 }}
             />
             <Layer
