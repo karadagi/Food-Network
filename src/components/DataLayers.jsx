@@ -48,6 +48,12 @@ const shelters = [
     { id: 6, lat: 33.7650, lng: -84.3550, name: "Youth Point", type: "shelter" },
 ];
 
+const pickupLocations = [
+    { id: 7, lat: 33.7620, lng: -84.3850, name: "Community Fridge (Piedmont)", type: "pickup" },
+    { id: 8, lat: 33.7400, lng: -84.4100, name: "Open Pantry South", type: "pickup" },
+    { id: 9, lat: 33.7850, lng: -84.3900, name: "Student Commons Popup", type: "pickup" },
+];
+
 const generateConnections = () => {
     const features = [];
     const activeCars = [];
@@ -144,6 +150,23 @@ export default function DataLayers() {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white"></span>
                         <div className="absolute bottom-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-green-500">
                             Source: {r.name}
+                        </div>
+                    </div>
+                </Marker>
+            ))}
+
+            {/* pickup: Self-Service Locations (Cyan) */}
+            {pickupLocations.map(p => (
+                <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="bottom">
+                    <div className="relative flex h-8 w-8 items-center justify-center group cursor-pointer z-10">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-cyan-500 border-2 border-white"></span>
+                        {/* Static 'Person' icon or ring to distinguish */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-1 h-1 bg-white rounded-full"></div>
+                        </div>
+                        <div className="absolute bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-cyan-500">
+                            Self-Service: {p.name}
                         </div>
                     </div>
                 </Marker>
