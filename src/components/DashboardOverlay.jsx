@@ -162,8 +162,8 @@ export default function DashboardOverlay() {
                 </div>
             </motion.div>
 
-            {/* Left Sidebar - Analytics */}
-            <div className="absolute top-32 left-6 pointer-events-auto">
+            {/* Left Sidebar - Analytics (Desktop Only) */}
+            <div className="hidden md:block absolute top-32 left-6 pointer-events-auto">
                 <AnalyticsCard
                     title="Total Food Rescued"
                     value="617.0 lbs"
@@ -186,8 +186,8 @@ export default function DashboardOverlay() {
                 />
             </div>
 
-            {/* Live Activity Feed - Right Side */}
-            <div className="absolute top-32 right-6 w-80 pointer-events-auto flex flex-col items-end">
+            {/* Live Activity Feed - Right Side (Desktop Only) */}
+            <div className="hidden md:flex absolute top-32 right-6 w-80 pointer-events-auto flex-col items-end">
                 <h3 className="text-zinc-500 font-bold mb-2 uppercase tracking-widest text-xs">Live Feed</h3>
                 <div className="w-full">
                     {activities.map(activity => (
@@ -197,7 +197,7 @@ export default function DashboardOverlay() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pointer-events-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 pointer-events-auto">
                 <StatCard
                     icon={Store}
                     label="Active Restaurants"
