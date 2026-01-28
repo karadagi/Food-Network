@@ -13,12 +13,40 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
         </div>
         <div>
             <p className="text-zinc-400 text-sm font-medium">{label}</p>
-            <h3 className="text-2xl font-bold text-white">{value}</h3>
+            <motion.h3
+                key={value} // Triggers animation on change
+                initial={{ color: "#34d399", scale: 1.1 }} // Flash Green & Scale Up
+                animate={{ color: "#ffffff", scale: 1 }}   // Fade to White & Scale Down
+                transition={{ duration: 0.5 }}
+                className="text-2xl font-bold"
+            >
+                {value}
+            </motion.h3>
         </div>
     </motion.div>
 );
 
 export default function DashboardOverlay() {
+    const [stats, setStats] = React.useState({
+        restaurants: 142,
+        deliveries: 89,
+        users: 12500,
+        avgTime: 24
+    });
+
+    React.useEffect(() => {
+        const interval = setInterval(() => {
+            setStats(prev => ({
+                restaurants: Math.max(130, prev.restaurants + (Math.random() > 0.5 ? 1 : -1)),
+                deliveries: Math.max(50, prev.deliveries + Math.floor(Math.random() * 5) - 2),
+                users: Math.max(12000, prev.users + Math.floor(Math.random() * 10) - 4),
+                avgTime: Math.max(20, Math.min(35, prev.avgTime + (Math.random() > 0.6 ? 1 : -1)))
+            }));
+        }, 3000); // Update every 3 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between">
             {/* Header */}
@@ -47,25 +75,25 @@ export default function DashboardOverlay() {
                 <StatCard
                     icon={Store}
                     label="Active Restaurants"
-                    value="142"
+                    value={stats.restaurants}
                     color="bg-orange-500"
                 />
                 <StatCard
                     icon={Truck}
                     label="Deliveries in Progress"
-                    value="89"
+                    value={stats.deliveries}
                     color="bg-blue-500"
                 />
                 <StatCard
                     icon={Users}
                     label="Active Users"
-                    value="12.5k"
+                    value={(stats.users / 1000).toFixed(1) + 'k'}
                     color="bg-purple-500"
                 />
                 <StatCard
                     icon={TrendingUp}
                     label="Avg. Delivery Time"
-                    value="24m"
+                    value={stats.avgTime + 'm'}
                     color="bg-green-500"
                 />
             </div>
