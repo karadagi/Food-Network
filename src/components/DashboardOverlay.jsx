@@ -26,6 +26,18 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
     </motion.div>
 );
 
+const ActivityItem = ({ text, time }) => (
+    <motion.div
+        initial={{ x: 20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="bg-black/90 backdrop-blur-md border-l-2 border-l-orange-500 border-t border-r border-b border-zinc-800 p-3 rounded mb-2 shadow-lg"
+    >
+        <p className="text-gray-100 text-sm font-medium">{text}</p>
+        <p className="text-zinc-500 text-xs mt-1 font-mono">{time}</p>
+    </motion.div>
+);
+
 export default function DashboardOverlay() {
     const [stats, setStats] = React.useState({
         restaurants: 142,
@@ -33,6 +45,10 @@ export default function DashboardOverlay() {
         users: 12500,
         avgTime: 24
     });
+
+    const [activities, setActivities] = React.useState([
+        { id: 1, text: "System Online. Monitoring Logistics.", time: "Now" }
+    ]);
 
     React.useEffect(() => {
         const interval = setInterval(() => {
@@ -43,6 +59,27 @@ export default function DashboardOverlay() {
                 avgTime: Math.max(20, Math.min(35, prev.avgTime + (Math.random() > 0.6 ? 1 : -1)))
             }));
         }, 3000); // Update every 3 seconds
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // Activity Feed Simulation
+    React.useEffect(() => {
+        const messages = [
+            "Driver #42 picked up 50lbs from Midtown Eats",
+            "Route optimized for Westside Shelter delivery",
+            "New donation alert: 200 meals available",
+            "Community Center received shipment",
+            "Traffic delay rerouted in Sector 4",
+            "Volunteer #89 checked in at Downtown Hub",
+            "Surplus detected at Edgewood Kitchen"
+        ];
+
+        const interval = setInterval(() => {
+            const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            setActivities(prev => [{ id: Date.now(), text: randomMsg, time }, ...prev].slice(0, 5));
+        }, 4500);
 
         return () => clearInterval(interval);
     }, []);
@@ -69,6 +106,16 @@ export default function DashboardOverlay() {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Live Activity Feed - Right Side */}
+            <div className="absolute top-32 right-6 w-80 pointer-events-auto flex flex-col items-end">
+                <h3 className="text-zinc-500 font-bold mb-2 uppercase tracking-widest text-xs">Live Feed</h3>
+                <div className="w-full">
+                    {activities.map(activity => (
+                        <ActivityItem key={activity.id} text={activity.text} time={activity.time} />
+                    ))}
+                </div>
+            </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pointer-events-auto">
