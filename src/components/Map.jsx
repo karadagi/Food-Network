@@ -41,11 +41,47 @@ export default function MapComponent({ children }) {
             {...viewState}
             onMove={evt => setViewState(evt.viewState)}
             style={{ width: '100%', height: '100%' }}
-            mapStyle="mapbox://styles/mapbox/streets-v11"
+            mapStyle="mapbox://styles/mapbox/dark-v11"
             mapboxAccessToken={MAPBOX_TOKEN}
+            fog={{
+                "range": [0.5, 10],
+                "color": "#2a0a0a", // Dark redish fog
+                "horizon-blend": 0.2,
+                "high-color": "#1a1a1a",
+                "space-color": "#000000",
+                "star-intensity": 0
+            }}
         >
-            <NavigationControl position="top-right" />
+            <NavigationControl position="top-right" showCompass={false} />
             <FullscreenControl position="top-right" />
+
+            {/* Glowing Red Roads */}
+            <Layer
+                id="neon-roads"
+                source="composite"
+                source-layer="road"
+                type="line"
+                filter={['==', 'class', 'street']}
+                paint={{
+                    'line-color': '#ff0033',
+                    'line-width': 2,
+                    'line-blur': 1,
+                    'line-opacity': 0.8
+                }}
+            />
+            <Layer
+                id="neon-roads-main"
+                source="composite"
+                source-layer="road"
+                type="line"
+                filter={['in', 'class', 'motorway', 'primary', 'secondary']}
+                paint={{
+                    'line-color': '#ff3333',
+                    'line-width': 4,
+                    'line-blur': 2,
+                    'line-opacity': 1
+                }}
+            />
 
             <Layer
                 id="3d-buildings"
@@ -55,26 +91,11 @@ export default function MapComponent({ children }) {
                 type="fill-extrusion"
                 minzoom={15}
                 paint={{
-                    'fill-extrusion-color': '#aaa',
-                    'fill-extrusion-height': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        15,
-                        0,
-                        15.05,
-                        ['get', 'height']
-                    ],
-                    'fill-extrusion-base': [
-                        'interpolate',
-                        ['linear'],
-                        ['zoom'],
-                        15,
-                        0,
-                        15.05,
-                        ['get', 'min_height']
-                    ],
-                    'fill-extrusion-opacity': 0.6
+                    'fill-extrusion-color': '#222222', // Matte dark grey
+                    'fill-extrusion-height': ['get', 'height'],
+                    'fill-extrusion-base': ['get', 'min_height'],
+                    'fill-extrusion-opacity': 1,
+                    'fill-extrusion-vertical-gradient': true // Adds subtle shading
                 }}
             />
             {children}

@@ -52,7 +52,18 @@ Antigravity will handle the specialized configuration files (`vite.config.js`, `
 
 ---
 
-## 💡 Pro-Tips for Vibe Coding
+## � Cost & The "Free" Tier
+
+Mapbox uses a **Pay-As-You-Go** model with a generous free tier.
+*   **Web Map Loads**: You get **50,000 free loads per month**.
+*   **Students**: This is more than enough for class projects, portfolios, and workshops.
+*   **Credit Card**: Mapbox usually requires a credit card to verify identity. However, **creating an Organization account** during signup may sometimes bypass this requirement initially.
+*   **Safety**: Mapbox does **not** have a hard spending cap button. However, 50,000 loads is a massive amount for a portfolio project.
+*   **Advice**: Bookmark your **[Usage Page](https://account.mapbox.com/statistics)**. Check it once a week. If you finish the class, you can delete your Access Token to ensure no future usage is possible.
+
+---
+
+## �💡 Pro-Tips for Vibe Coding
 
 *   **Be Specific about Feelings**: "Make it feel expensive" or "Make it look like a sci-fi HUD" are valid prompts. Antigravity translates "vibes" into CSS.
 *   **Iterate Fast**: If something looks wrong, just say "That broke the map, undo it" or "The text is too small, make it readable."
