@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
-import { Source, Layer, Marker } from 'react-map-gl/mapbox';
+import React, { useMemo, useState } from 'react';
+import { Source, Layer, Marker, Popup } from 'react-map-gl/mapbox';
+
 
 // Mock Data Generators
 const generateRoutes = (count) => {
@@ -95,6 +96,7 @@ export default function DataLayers() {
 
     // Animation Frame State
     const [time, setTime] = React.useState(Date.now());
+    const [selectedMarker, setSelectedMarker] = useState(null);
 
     React.useEffect(() => {
         let animationFrame;
@@ -144,12 +146,21 @@ export default function DataLayers() {
 
             {/* Restaurants (Supply) - Green Markers */}
             {restaurants.map(r => (
-                <Marker key={r.id} longitude={r.lng} latitude={r.lat} anchor="bottom">
+                <Marker
+                    key={r.id}
+                    longitude={r.lng}
+                    latitude={r.lat}
+                    anchor="bottom"
+                    onClick={e => {
+                        e.originalEvent.stopPropagation();
+                        setSelectedMarker({ ...r, type: 'source' });
+                    }}
+                >
                     <div className="relative flex h-6 w-6 items-center justify-center group cursor-pointer z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border border-white"></span>
-                        <div className="absolute bottom-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-green-500">
-                            Source: {r.name}
+                        <div className="absolute bottom-8 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-green-500 font-bold">
+                            {r.name}
                         </div>
                     </div>
                 </Marker>
@@ -157,16 +168,24 @@ export default function DataLayers() {
 
             {/* pickup: Self-Service Locations (Cyan) */}
             {pickupLocations.map(p => (
-                <Marker key={p.id} longitude={p.lng} latitude={p.lat} anchor="bottom">
+                <Marker
+                    key={p.id}
+                    longitude={p.lng}
+                    latitude={p.lat}
+                    anchor="bottom"
+                    onClick={e => {
+                        e.originalEvent.stopPropagation();
+                        setSelectedMarker({ ...p, type: 'pickup' });
+                    }}
+                >
                     <div className="relative flex h-8 w-8 items-center justify-center group cursor-pointer z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-cyan-500 border-2 border-white"></span>
-                        {/* Static 'Person' icon or ring to distinguish */}
                         <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-1 h-1 bg-white rounded-full"></div>
                         </div>
-                        <div className="absolute bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-cyan-500">
-                            Self-Service: {p.name}
+                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-cyan-500 font-bold">
+                            {p.name}
                         </div>
                     </div>
                 </Marker>
@@ -174,16 +193,61 @@ export default function DataLayers() {
 
             {/* Shelters (Demand) - Red Markers */}
             {shelters.map(s => (
-                <Marker key={s.id} longitude={s.lng} latitude={s.lat} anchor="bottom">
+                <Marker
+                    key={s.id}
+                    longitude={s.lng}
+                    latitude={s.lat}
+                    anchor="bottom"
+                    onClick={e => {
+                        e.originalEvent.stopPropagation();
+                        setSelectedMarker({ ...s, type: 'shelter' });
+                    }}
+                >
                     <div className="relative flex h-8 w-8 items-center justify-center group cursor-pointer z-10">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-white"></span>
-                        <div className="absolute bottom-10 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-red-500">
-                            Need: {s.name}
+                        <div className="absolute bottom-10 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap border border-red-500 font-bold">
+                            {s.name}
                         </div>
                     </div>
                 </Marker>
             ))}
+
+            {/* Narrative Popup */}
+            {selectedMarker && (
+                <Popup
+                    longitude={selectedMarker.lng}
+                    latitude={selectedMarker.lat}
+                    anchor="top"
+                    onClose={() => setSelectedMarker(null)}
+                    closeOnClick={false}
+                    className="z-50"
+                >
+                    <div className="p-2 min-w-[200px] text-zinc-900">
+                        <h3 className="font-bold text-base mb-1">{selectedMarker.name}</h3>
+                        <div className="text-sm border-t border-zinc-200 pt-1 mt-1">
+                            {selectedMarker.type === 'source' && (
+                                <>
+                                    <p className="font-semibold text-green-700">Supply Available</p>
+                                    <p className="italic text-zinc-600">"Fresh produce donation ready. 50lbs loaded."</p>
+                                </>
+                            )}
+                            {selectedMarker.type === 'shelter' && (
+                                <>
+                                    <p className="font-semibold text-red-700">Critical Need</p>
+                                    <p className="italic text-zinc-600">"Urgent request for warm meals. Capacity at 90%."</p>
+                                </>
+                            )}
+                            {selectedMarker.type === 'pickup' && (
+                                <>
+                                    <p className="font-semibold text-cyan-700">Self-Service</p>
+                                    <p className="italic text-zinc-600">"Community Fridge restocked 10 mins ago. Open 24/7."</p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </Popup>
+            )}
         </>
     );
 }
