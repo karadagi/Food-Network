@@ -28,7 +28,7 @@ export default function DashboardOverlay() {
                 className="flex justify-between items-start pointer-events-auto"
             >
                 <div className="bg-black/90 backdrop-blur-md p-6 rounded-2xl border border-zinc-800 shadow-2xl">
-                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600 mb-1">
+                    <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-red-600 mb-1">
                         ATLANTA FOOD NETWORK
                     </h1>
                     <p className="text-zinc-500 font-medium tracking-wide text-sm">REAL-TIME LOGISTICS NETWORK</p>
