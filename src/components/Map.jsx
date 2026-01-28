@@ -45,9 +45,9 @@ export default function MapComponent({ children }) {
             mapboxAccessToken={MAPBOX_TOKEN}
             fog={{
                 "range": [0.5, 10],
-                "color": "#2a0a0a", // Dark redish fog
+                "color": "#1F1A0B", // Dark Gold/Earth fog
                 "horizon-blend": 0.2,
-                "high-color": "#1a1a1a",
+                "high-color": "#26220F",
                 "space-color": "#000000",
                 "star-intensity": 0
             }}
@@ -55,7 +55,7 @@ export default function MapComponent({ children }) {
             <NavigationControl position="top-right" showCompass={false} />
             <FullscreenControl position="top-right" />
 
-            {/* Glowing Red Roads */}
+            {/* Logistics Network - Gold/Amber flow */}
             <Layer
                 id="neon-roads"
                 source="composite"
@@ -63,10 +63,10 @@ export default function MapComponent({ children }) {
                 type="line"
                 filter={['==', 'class', 'street']}
                 paint={{
-                    'line-color': '#ff0033',
-                    'line-width': 2,
+                    'line-color': '#ffaa00', // Amber/Gold
+                    'line-width': 1,
                     'line-blur': 1,
-                    'line-opacity': 0.8
+                    'line-opacity': 0.5
                 }}
             />
             <Layer
@@ -76,9 +76,9 @@ export default function MapComponent({ children }) {
                 type="line"
                 filter={['in', 'class', 'motorway', 'primary', 'secondary']}
                 paint={{
-                    'line-color': '#ff3333',
-                    'line-width': 4,
-                    'line-blur': 2,
+                    'line-color': '#ffcc00', // Bright Gold
+                    'line-width': 3,
+                    'line-blur': 4, // Higher blur for "glow"
                     'line-opacity': 1
                 }}
             />
@@ -91,11 +91,11 @@ export default function MapComponent({ children }) {
                 type="fill-extrusion"
                 minzoom={15}
                 paint={{
-                    'fill-extrusion-color': '#222222', // Matte dark grey
+                    'fill-extrusion-color': '#1a1a1a', // Darker matte background
                     'fill-extrusion-height': ['get', 'height'],
                     'fill-extrusion-base': ['get', 'min_height'],
                     'fill-extrusion-opacity': 1,
-                    'fill-extrusion-vertical-gradient': true // Adds subtle shading
+                    'fill-extrusion-vertical-gradient': true
                 }}
             />
             {children}

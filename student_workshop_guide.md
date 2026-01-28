@@ -1,6 +1,6 @@
 # Workshop: Vibe Coding a 3D City with Antigravity
 **Target Audience**: Architecture & Planning Students
-**Goal**: Create a stunning, interactive 3D dashboard of Atlanta (or your site) by collaborating with AI. No manual coding required—just vibes.
+**Goal**: Design a "Social Infrastructure" dashboard. Map the mismatch between **Abundance** (Restaurants with surplus) and **Need** (Student centers, shelters). visualizing the logistics of food rescue.
 
 ---
 
@@ -8,9 +8,9 @@
 
 We aren't writing code from scratch. We are directing an AI developer.
 
-1.  **Antigravity Acess**: Ensure you have your Antigravity AI assistant ready.
-2.  **Mapbox Token**: Sign up at [mapbox.com](https://www.mapbox.com/) and grab your public **Access Token**. You'll need to give this to Antigravity.
-3.  **Vision**: Have a clear aesthetic in mind. Is it Cyberpunk? Solarpunk? Minimalist Architectural?
+1.  **Antigravity Access**: Ensure you have your Antigravity AI assistant ready.
+2.  **Mapbox Token**: Sign up at [mapbox.com](https://www.mapbox.com/) and grab your public **Access Token**.
+3.  **Mission**: How do you visualize "Waste" turning into "Resource"?
 
 ---
 
@@ -18,7 +18,7 @@ We aren't writing code from scratch. We are directing an AI developer.
 
 Start a new session with Antigravity and copy-paste this prompt to kickstart the project:
 
-> "I need a dashboard for an architecture project. It should be a web app using Vite and React. The centerpiece is a full-screen, 3D interactive map of Atlanta using Mapbox GL. I want it to look [INSERT YOUR VIBE: e.g., 'dark, sleek, and premium' or 'clean, white-model aesthetic']. Please set up the project structure for me."
+> "I need a logistics dashboard for a 'Zero Waste' food network. It connects restaurants (Surplus) with students in need (Demand). The centerpiece is a 3D map of Atlanta. I want it to look [INSERT VIBE: e.g. 'Bioluminescent', 'Neon Logistics', or 'Clean Tech']. Visualize the flow of resources through the city."
 
 **What happens next?**
 *   Antigravity will create the files.
