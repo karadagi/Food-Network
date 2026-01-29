@@ -11,6 +11,7 @@ We aren't writing code from scratch. We are directing an AI developer.
 1.  **Antigravity Access**: Ensure you have your Antigravity AI assistant ready.
 2.  **Mapbox Token**: Sign up at [mapbox.com](https://www.mapbox.com/) and grab your public **Access Token**.
 3.  **Mission**: How do you visualize "Waste" turning into "Resource"?
+4.  **Setup Check**: Read [Essential: Safe Mapbox Setup](./student_mapbox_setup.md) to initialize your project correctly. This prevents the "White Screen of Death".
 
 ---
 
